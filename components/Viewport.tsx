@@ -7,31 +7,54 @@ const deg2rad = (degrees) => degrees * (Math.PI / 180);
 export default function Viewport(props) {
 	const settings = {
 		scaleMultiplier: 1,
-		backgroundColor: "fff",
+		backgroundColor: "#dde8ed",
 		scrollRotation: [0.02, 0.1, 0.02],
 	};
 
+	function newAngle() {
+		let x = props.scroll;
+
+		x > 1000 * Math.PI ? (x = 1000 * Math.PI) : (x = x);
+
+		return deg2rad(sine(x) * 90);
+	}
+
+	function newPosY() {
+		let x = props.scroll;
+
+		x > 1000 * Math.PI ? (x = 1000 * Math.PI) : (x = x);
+
+		let y = (sine(-1000 * Math.PI + x * 2) + 1) * 40 + sine(1000 * Math.PI + x * 2) * 10;
+
+		return y;
+	}
+
+	function newPosZ() {
+		let x = props.scroll;
+
+		x > 1000 * Math.PI ? (x = 1000 * Math.PI) : (x = x);
+
+		let y = (sine(1000 * Math.PI + x * 2) + 1) * 40;
+
+		return y;
+	}
+
+	function sine(x) {
+		return Math.sin(0.0005 * x);
+	}
+
 	return (
-		<div className={`viewport w-full h-screen`}>
+		<div className={`viewport w-full h-screen fixed`}>
 			<Canvas frameloop="demand" dpr={[1, 2]} gl={{ antialias: true }}>
 				<color attach="background" args={[settings.backgroundColor]} />
-				<PerspectiveCamera makeDefault position={[0, 25 + props.scroll * 0.01, 80]} rotation={[0, 0, deg2rad(45)]} />
+				<PerspectiveCamera
+					makeDefault // x y z
+					position={[0, newPosY(), newPosZ()]}
+					rotation={[-newAngle(), 0, 0]}
+				/>
 				<ambientLight intensity={1} />
-				<spotLight
-					position={[5, 45, 5]}
-					rotation={[
-						deg2rad(props.scroll * settings.scrollRotation[0]),
-						deg2rad(props.scroll * settings.scrollRotation[1]),
-						deg2rad(props.scroll * settings.scrollRotation[2]),
-					]}
-				/>
-				<Model
-					rotation={[
-						deg2rad(props.scroll * settings.scrollRotation[0]),
-						deg2rad(props.scroll * settings.scrollRotation[1]),
-						deg2rad(props.scroll * settings.scrollRotation[2]),
-					]}
-				/>
+				<spotLight position={[5, 45, 5]} />
+				<Model position={[0, 0, 0]} />
 			</Canvas>
 		</div>
 	);
