@@ -1,0 +1,19 @@
+@supports (animation-timeline: works) {
+	.viewport {
+		animation: 1s ease-in-out forwards progressive-sizing;
+		animation-timeline: progressive-timeline;
+	}
+
+	@scroll-timeline progressive-timeline {
+		time-range: 1s;
+	}
+
+	@keyframes progressive-sizing {
+		from {
+			height: 100vh;
+		}
+		to {
+			height: 10vh;
+		}
+	}
+}

@@ -1,17 +1,26 @@
 import Head from "next/head";
-import Image from "next/image";
-import { Canvas } from "@react-three/fiber";
+import Script from "next/script";
+import dynamic from "next/dynamic";
 import React, { useState, useEffect } from "react";
+import { ScrollTrigger } from "gsap/dist/ScrollTrigger";
+import gsap from "gsap";
 
 import styles from "../styles/Home.module.scss";
 import Viewport from "../components/Viewport";
+import { start } from "repl";
 
 export default function Home() {
 	const [scrollY, setScrollY] = useState(0);
 
+	function linearScrollY() {
+		let y = window.scrollY == 0 ? 0 : window.scrollY / window.innerHeight;
+
+		return 700 * y;
+	}
+
 	useEffect(() => {
 		const handleScroll = () => {
-			setScrollY(window.scrollY);
+			setScrollY(linearScrollY());
 		};
 
 		handleScroll();
@@ -22,6 +31,20 @@ export default function Home() {
 		};
 	}, []);
 
+	useEffect(() => {
+		gsap.registerPlugin(ScrollTrigger);
+
+		gsap.to(".viewport", {
+			scrollTrigger: {
+				trigger: "#trigger",
+				start: "top 80%",
+				end: "top 30%",
+				scrub: true,
+			},
+			height: "50vh",
+		});
+	});
+
 	return (
 		<div className={`h-[400vh] w-full`}>
 			<Head>
@@ -30,6 +53,7 @@ export default function Home() {
 				<link rel="icon" href="/favicon.ico" />
 			</Head>
 			<Viewport scroll={scrollY} />
+			<div id="trigger" className="trigger top-[100vh] w-screen h-[300vh] absolute"></div>
 		</div>
 	);
 }

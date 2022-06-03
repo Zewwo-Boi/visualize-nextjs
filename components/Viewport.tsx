@@ -1,5 +1,7 @@
-import { Canvas, useLoader, useGraph } from "@react-three/fiber";
-import { PerspectiveCamera, OrbitControls, useGLTF } from "@react-three/drei";
+// @ts-nocheck
+
+import { Canvas, useThree } from "@react-three/fiber";
+import { PerspectiveCamera, useGLTF } from "@react-three/drei";
 import { useRef } from "react";
 
 const deg2rad = (degrees) => degrees * (Math.PI / 180);
@@ -7,12 +9,20 @@ const deg2rad = (degrees) => degrees * (Math.PI / 180);
 export default function Viewport(props) {
 	const settings = {
 		scaleMultiplier: 1,
-		backgroundColor: "#dde8ed",
+		scrollMultiplier: 2,
+		backgroundColor: "#fff",
 		scrollRotation: [0.02, 0.1, 0.02],
 	};
 
+	/**
+	 * @author @Zewwo-Boi
+	 * @description An animation made chaotically(tm) using sine waves(for some reason). Guess I really like to use over-complicated methods of
+	 * 				writing code ¯\_(ツ)_/¯
+	 * @includes newAngle, newPosY, newPosZ, sine
+	 */
+
 	function newAngle() {
-		let x = props.scroll;
+		let x = props.scroll * settings.scrollMultiplier;
 
 		x > 1000 * Math.PI ? (x = 1000 * Math.PI) : (x = x);
 
@@ -20,35 +30,38 @@ export default function Viewport(props) {
 	}
 
 	function newPosY() {
-		let x = props.scroll;
+		let x = props.scroll * settings.scrollMultiplier;
 
 		x > 1000 * Math.PI ? (x = 1000 * Math.PI) : (x = x);
 
-		let y = (sine(-1000 * Math.PI + x * 2) + 1) * 40 + sine(1000 * Math.PI + x * 2) * 10;
+		let y = (sine(-1000 * Math.PI + x * 2) + 1) * 45 + sine(1000 * Math.PI + x * 2) * 10;
 
 		return y;
 	}
 
 	function newPosZ() {
-		let x = props.scroll;
+		let x = props.scroll * settings.scrollMultiplier;
 
+		// Limit x to be no bigger than 1000π
 		x > 1000 * Math.PI ? (x = 1000 * Math.PI) : (x = x);
 
+		//        Offset by         x = 0 then
+		//         1000 ↴            y = -1 ↴
 		let y = (sine(1000 * Math.PI + x * 2) + 1) * 40;
-
 		return y;
 	}
 
 	function sine(x) {
+		// Originally, the "a" value was 0.5, but it was offset by 1/1000 for some reason
 		return Math.sin(0.0005 * x);
 	}
 
 	return (
-		<div className={`viewport w-full h-screen fixed`}>
-			<Canvas frameloop="demand" dpr={[1, 2]} gl={{ antialias: true }}>
+		<div className={`viewport w-full h-screen fixed`} id="viewport">
+			<Canvas frameloop="always" dpr={[1, 2]} gl={{ antialias: true }}>
 				<color attach="background" args={[settings.backgroundColor]} />
 				<PerspectiveCamera
-					makeDefault // x y z
+					makeDefault
 					position={[0, newPosY(), newPosZ()]}
 					rotation={[-newAngle(), 0, 0]}
 				/>
